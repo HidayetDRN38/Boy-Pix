@@ -12,8 +12,8 @@
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#0b0f19',
-                        cardbg: '#131c2e',
+                        darkbg: '#080c14',
+                        cardbg: '#101726',
                     }
                 }
             }
@@ -22,25 +22,37 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body { font-family: 'Inter', sans-serif; touch-action: manipulation; }
-        .grid-cell { transition: background-color 0.1s ease; }
+        .grid-cell { transition: background-color 0.08s ease, transform 0.1s ease; }
+        .grid-cell:active { transform: scale(0.92); }
         @keyframes pulse-meteor {
             0% { transform: scale(1); opacity: 0.8; background-color: rgba(239, 68, 68, 0.4); }
-            50% { transform: scale(1.05); opacity: 1; background-color: rgba(239, 68, 68, 0.9); box-shadow: 0 0 25px rgba(239, 68, 68, 0.9); }
+            50% { transform: scale(1.06); opacity: 1; background-color: rgba(239, 68, 68, 0.95); box-shadow: 0 0 25px rgba(239, 68, 68, 0.9); }
             100% { transform: scale(1); opacity: 0.8; background-color: rgba(239, 68, 68, 0.4); }
         }
-        .meteor-warning { animation: pulse-meteor 0.6s infinite; }
+        .meteor-warning { animation: pulse-meteor 0.5s infinite; }
         @keyframes pulse-gold {
-            0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 5px #facc15; }
-            50% { transform: scale(1.15); filter: brightness(1.5); box-shadow: 0 0 15px #facc15; }
-            100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 5px #facc15; }
+            0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 8px #facc15; }
+            50% { transform: scale(1.18); filter: brightness(1.6); box-shadow: 0 0 20px #facc15; }
+            100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 8px #facc15; }
         }
-        .gold-capsule { animation: pulse-gold 0.8s infinite; background-color: #facc15 !important; border-radius: 50%; }
+        .gold-capsule { animation: pulse-gold 0.7s infinite; background-color: #facc15 !important; border-radius: 50%; }
+        /* Custom scrollbar for player checklists */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.7); }
     </style>
 </head>
 <body class="bg-darkbg text-slate-100 min-h-screen flex flex-col justify-between select-none overflow-x-hidden">
 
-    <div id="customModal" class="fixed inset-0 bg-black/80 z-[999] hidden flex items-center justify-center p-4">
-        <div class="bg-cardbg border border-slate-700/80 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
+    <!-- Sound Toggle Floating Button -->
+    <button onclick="toggleAudioMute()" id="soundToggleBtn" class="fixed top-4 right-4 z-50 bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 px-3 py-2 rounded-2xl text-xs font-semibold backdrop-blur-md shadow-lg transition flex items-center gap-1.5">
+        <svg id="soundIcon" class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+        <span id="soundText">Ses: Açık</span>
+    </button>
+
+    <div id="customModal" class="fixed inset-0 bg-black/80 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-cardbg border border-slate-700/80 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center transform transition-all">
             <h3 id="modalTitle" class="text-xl font-bold mb-2 text-indigo-400">Bildirim</h3>
             <p id="modalMessage" class="text-slate-300 mb-6 text-sm">Mesaj içeriği buraya gelecek...</p>
             <div id="modalButtons" class="flex justify-center gap-3">
@@ -49,33 +61,35 @@
         </div>
     </div>
 
+    <!-- Auth View / Main Menu -->
     <div id="authView" class="flex-1 flex items-center justify-center p-4">
-        <div class="bg-cardbg border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
+        <div class="bg-cardbg border border-slate-800/90 rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden backdrop-blur-md">
             <div class="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
             
-            <div class="text-center mb-8">
+            <div class="text-center mb-8 relative z-10">
                 <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">Boy-Pix</h1>
-                <p class="text-slate-400 text-xs mt-2">Renkleri konuştur, pikselleri fethet, kaosa ortak ol!</p>
+                <p class="text-slate-400 text-xs mt-2 font-medium">Renkleri konuştur, pikselleri fethet, kaosa ortak ol!</p>
             </div>
 
-            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 mb-6 flex items-center justify-between">
+            <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 mb-6 flex items-center justify-between relative z-10">
                 <div>
-                    <span class="text-xs text-slate-400 block">Oyuncu</span>
+                    <span class="text-[11px] text-slate-400 block font-medium">Oyuncu</span>
                     <span id="displayNick" class="font-bold text-indigo-300 text-sm">Misafir</span>
                 </div>
                 <div class="text-right">
-                    <span class="text-xs text-slate-400 block">En Yüksek Skor</span>
+                    <span class="text-[11px] text-slate-400 block font-medium">En Yüksek Skor</span>
                     <span id="displayHighscore" class="font-bold text-emerald-400 text-sm">0</span>
                 </div>
-                <button onclick="openNickModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700">Değiştir</button>
+                <button onclick="openNickModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700 font-medium">Değiştir</button>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-3 relative z-10">
                 <button onclick="showCreateRoomModal()" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     Oda Kur (Online)
                 </button>
-                <button onclick="showJoinRoomModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3.5 px-4 rounded-2xl transition border border-slate-700 flex items-center justify-center gap-2">
+                <button onclick="showJoinRoomModal()" class="w-full bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-bold py-3.5 px-4 rounded-2xl transition border border-slate-700 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
                     Odaya Katıl (Online)
                 </button>
@@ -86,41 +100,45 @@
         </div>
     </div>
 
-    <div id="nickModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+    <!-- Nickname Modal -->
+    <div id="nickModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-xs w-full shadow-2xl">
             <h3 class="text-lg font-bold mb-3 text-indigo-400">Nickname Belirle</h3>
-            <input type="text" id="nickInput" maxlength="12" placeholder="Takma adın..." class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500">
+            <input type="text" id="nickInput" maxlength="12" placeholder="Takma adın..." class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500 text-sm">
             <div class="flex gap-2">
-                <button onclick="saveNickname()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition">Kaydet</button>
-                <button onclick="closeNickModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition">İptal</button>
+                <button onclick="saveNickname()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition text-sm">Kaydet</button>
+                <button onclick="closeNickModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition text-sm">İptal</button>
             </div>
         </div>
     </div>
 
-    <div id="createRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
             <h3 class="text-lg font-bold mb-3 text-indigo-400">Yeni Boy-Pix Odası Kur</h3>
-            <input type="text" id="createRoomName" maxlength="15" placeholder="Oda Adı (Örn: Piksel1)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-3 focus:outline-none focus:border-indigo-500">
-            <input type="password" id="createRoomPass" maxlength="10" placeholder="Oda Şifresi (İsteğe bağlı)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500">
+            <input type="text" id="createRoomName" maxlength="15" placeholder="Oda Adı (Örn: Piksel1)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-3 focus:outline-none focus:border-indigo-500 text-sm">
+            <input type="password" id="createRoomPass" maxlength="10" placeholder="Oda Şifresi (İsteğe bağlı)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500 text-sm">
             <div class="flex gap-2">
-                <button onclick="createRoomSubmit()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition">Kur ve Lobiye Gir</button>
-                <button onclick="closeCreateRoomModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition">İptal</button>
+                <button onclick="createRoomSubmit()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition text-sm">Kur ve Lobiye Gir</button>
+                <button onclick="closeCreateRoomModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition text-sm">İptal</button>
             </div>
         </div>
     </div>
 
-    <div id="joinRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+    <!-- Join Room Modal -->
+    <div id="joinRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
             <h3 class="text-lg font-bold mb-3 text-indigo-400">Boy-Pix Odasına Katıl</h3>
-            <input type="text" id="joinRoomName" maxlength="15" placeholder="Oda Adı" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-3 focus:outline-none focus:border-indigo-500">
-            <input type="password" id="joinRoomPass" maxlength="10" placeholder="Oda Şifresi (Varsa)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500">
+            <input type="text" id="joinRoomName" maxlength="15" placeholder="Oda Adı" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-3 focus:outline-none focus:border-indigo-500 text-sm">
+            <input type="password" id="joinRoomPass" maxlength="10" placeholder="Oda Şifresi (Varsa)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500 text-sm">
             <div class="flex gap-2">
-                <button onclick="joinRoomSubmit()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition">Bağlan</button>
-                <button onclick="closeJoinRoomModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition">İptal</button>
+                <button onclick="joinRoomSubmit()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition text-sm">Bağlan</button>
+                <button onclick="closeJoinRoomModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition text-sm">İptal</button>
             </div>
         </div>
     </div>
 
+    <!-- Game Arena View -->
     <div id="gameView" class="hidden flex-1 flex flex-col p-2 sm:p-4 max-w-lg mx-auto w-full justify-center">
         <div class="bg-cardbg border border-slate-800 rounded-2xl p-3 mb-2 flex items-center justify-between gap-2 shadow-xl">
             <div class="flex items-center gap-2">
@@ -133,11 +151,10 @@
 
             <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
                 <div class="flex items-center gap-1.5">
-                    <span class="text-[10px] text-slate-400">Renk:</span>
+                    <span class="text-[10px] text-slate-400 font-medium">Renk:</span>
                     <div id="myColorIndicator" class="w-4 h-4 rounded-full shadow-md border border-white/20"></div>
                 </div>
-                <div id="powerupIndicator" class="hidden text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-lg border border-pink-500/30 animate-pulse flex items-center gap-1">
-                    <!-- SVG Energy Capsule Icon -->
+                <div id="powerupIndicator" class="hidden text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-lg border border-pink-500/30 animate-pulse flex items-center gap-1 font-semibold">
                     <svg class="w-3 h-3 text-pink-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                     3x3 Fırça!
                 </div>
@@ -145,7 +162,7 @@
 
             <div class="flex items-center gap-3">
                 <div class="text-center">
-                    <span class="text-[9px] text-slate-400 block">Süre</span>
+                    <span class="text-[9px] text-slate-400 block font-medium">Süre</span>
                     <span id="gameTimer" class="font-mono font-extrabold text-sm sm:text-base text-pink-400">60s</span>
                 </div>
             </div>
@@ -153,11 +170,12 @@
 
         <div class="bg-cardbg border border-slate-800 rounded-2xl p-3 flex items-center justify-center shadow-xl relative w-full">
             <div id="gridContainer" class="grid grid-cols-16 gap-0.5 sm:gap-1 w-full max-w-[min(88vw,78vh,440px)] aspect-square bg-slate-900/90 p-2 rounded-xl border border-slate-800" style="grid-template-columns: repeat(16, minmax(0, 1fr));">
-                <!-- 256 cells -->
+                <!-- 256 cells rendered dynamically -->
             </div>
         </div>
     </div>
 
+    <!-- Lobby / Results Modal -->
     <div id="resultsModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-md w-full shadow-2xl text-center">
             <h2 id="lobbyModalHeader" class="text-2xl font-extrabold text-indigo-400 mb-1">Oda Lobisi</h2>
@@ -168,7 +186,6 @@
             </div>
 
             <div class="bg-slate-900/90 rounded-2xl p-4 mb-5 border border-slate-800 text-left">
-                <!-- Room info badge & checklist header -->
                 <div id="roomInfoContainer" class="mb-3 pb-2 border-b border-slate-800 flex items-center justify-between text-xs">
                     <span id="roomInfoName" class="font-bold text-indigo-300">Oda: -</span>
                     <span id="roomInfoType" class="bg-slate-800 px-2.5 py-1 rounded-lg text-slate-300 border border-slate-700">Şifresiz</span>
@@ -183,12 +200,10 @@
             </div>
 
             <div class="space-y-2">
-                <!-- Host-only force start button -->
                 <button id="hostStartBtn" onclick="hostStartGame()" class="hidden w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
                     <span>👑 Oyunu Başlat (Kurucu)</span>
                 </button>
 
-                <!-- Regular ready toggle button -->
                 <button id="readyBtn" onclick="toggleReady()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
                     <span>Hazırım!</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -201,6 +216,7 @@
         </div>
     </div>
 
+    <!-- Firebase SDK & Game Logic Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -229,6 +245,107 @@
             '#8b5cf6'  // Purple
         ];
 
+        // Web Audio API Sound Generator
+        let audioCtx = null;
+        let isMuted = localStorage.getItem('boypix_muted') === 'true';
+        updateSoundButtonUI();
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        window.toggleAudioMute = function() {
+            isMuted = !isMuted;
+            localStorage.setItem('boypix_muted', isMuted);
+            updateSoundButtonUI();
+        }
+
+        function updateSoundButtonUI() {
+            const btn = document.getElementById('soundText');
+            const icon = document.getElementById('soundIcon');
+            if (isMuted) {
+                if(btn) btn.innerText = "Ses: Kapalı";
+                if(icon) {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>';
+                    icon.classList.remove('text-emerald-400');
+                    icon.classList.add('text-slate-500');
+                }
+            } else {
+                if(btn) btn.innerText = "Ses: Açık";
+                if(icon) {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>';
+                    icon.classList.remove('text-slate-500');
+                    icon.classList.add('text-emerald-400');
+                }
+            }
+        }
+
+        function playSound(type) {
+            if (isMuted) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                const now = ctx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'paint') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(550 + Math.random() * 150, now);
+                    gain.gain.setValueAtTime(0.04, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.06);
+                    osc.start(now);
+                    osc.stop(now + 0.06);
+                } else if (type === 'powerup') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.setValueAtTime(500, now + 0.08);
+                    osc.frequency.setValueAtTime(800, now + 0.16);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'meteor') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(50, now + 0.5);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'win') {
+                    osc.type = 'sine';
+                    const notes = [440, 554.37, 659.25, 880];
+                    notes.forEach((freq, idx) => {
+                        const noteOsc = ctx.createOscillator();
+                        const noteGain = ctx.createGain();
+                        noteOsc.connect(noteGain);
+                        noteGain.connect(ctx.destination);
+                        noteOsc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        noteGain.gain.setValueAtTime(0.1, now + idx * 0.1);
+                        noteGain.gain.linearRampToValueAtTime(0.01, now + idx * 0.1 + 0.25);
+                        noteOsc.start(now + idx * 0.1);
+                        noteOsc.stop(now + idx * 0.1 + 0.25);
+                    });
+                }
+            } catch(e) { console.warn("Audio error:", e); }
+        }
+
         let currentUser = null;
         let currentRoomId = null;
         let unsubscribeRoom = null;
@@ -247,6 +364,7 @@
         let testReadyTimer = null;
         let testReadySecondsLeft = 15;
 
+        // Enhanced Bot States with smart directional routing
         let botStates = {
             'bot1': { r: 2, c: 2, color: COLOR_PALETTE[1], nick: 'Bot_Ahmet', score: 0, ready: false, dir: 3 },
             'bot2': { r: 13, c: 2, color: COLOR_PALETTE[2], nick: 'Bot_Zeynep', score: 0, ready: false, dir: 0 },
@@ -277,22 +395,27 @@
         initAuth();
 
         window.showModal = function(title, msg) {
+            playSound('click');
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerText = msg;
             document.getElementById('customModal').classList.remove('hidden');
         }
         window.closeModal = function() {
+            playSound('click');
             document.getElementById('customModal').classList.add('hidden');
         }
 
         window.openNickModal = function() {
+            playSound('click');
             document.getElementById('nickInput').value = nickname;
             document.getElementById('nickModal').classList.remove('hidden');
         }
         window.closeNickModal = function() {
+            playSound('click');
             document.getElementById('nickModal').classList.add('hidden');
         }
         window.saveNickname = function() {
+            playSound('click');
             const val = document.getElementById('nickInput').value.trim();
             if (!val) return showModal("Hata", "Nickname boş olamaz.");
             nickname = val;
@@ -301,15 +424,16 @@
             closeNickModal();
         }
 
-        window.showCreateRoomModal = function() { document.getElementById('createRoomModal').classList.remove('hidden'); }
-        window.closeCreateRoomModal = function() { document.getElementById('createRoomModal').classList.add('hidden'); }
-        window.showJoinRoomModal = function() { document.getElementById('joinRoomModal').classList.remove('hidden'); }
-        window.closeJoinRoomModal = function() { document.getElementById('joinRoomModal').classList.add('hidden'); }
+        window.showCreateRoomModal = function() { playSound('click'); document.getElementById('createRoomModal').classList.remove('hidden'); }
+        window.closeCreateRoomModal = function() { playSound('click'); document.getElementById('createRoomModal').classList.add('hidden'); }
+        window.showJoinRoomModal = function() { playSound('click'); document.getElementById('joinRoomModal').classList.remove('hidden'); }
+        window.closeJoinRoomModal = function() { playSound('click'); document.getElementById('joinRoomModal').classList.add('hidden'); }
 
         window.createRoomSubmit = async function() {
+            playSound('click');
             if (!currentUser) return showModal("Bekleyin", "Bağlantı kuruluyor...");
             const roomName = document.getElementById('createRoomName').value.trim();
-            const roomPass = document.getElementById('createRoomPass').value.trim(); // Optional password
+            const roomPass = document.getElementById('createRoomPass').value.trim();
             if (!roomName) return showModal("Eksik Bilgi", "Oda adı girilmelidir.");
 
             try {
@@ -319,11 +443,11 @@
 
                 myColor = COLOR_PALETTE[0];
                 const initialGrid = {};
-                for(let i=0; i<256; i++) initialGrid[i] = '#131c2e';
+                for(let i=0; i<256; i++) initialGrid[i] = '#101726';
 
                 const roomData = {
                     name: roomName,
-                    password: roomPass || '', // If empty, room is unencrypted/public
+                    password: roomPass || '',
                     status: 'lobby',
                     endTime: null, 
                     readyStartTime: null,
@@ -349,6 +473,7 @@
         }
 
         window.joinRoomSubmit = async function() {
+            playSound('click');
             if (!currentUser) return showModal("Bekleyin", "Bağlantı kuruluyor...");
             const roomName = document.getElementById('joinRoomName').value.trim();
             const roomPass = document.getElementById('joinRoomPass').value.trim();
@@ -360,7 +485,6 @@
                 if (!snap.exists()) return showModal("Bulunamadı", "Böyle bir Boy-Pix odası bulunamadı.");
 
                 const data = snap.data();
-                // Check password if room has one set
                 if (data.password && data.password !== roomPass) {
                     return showModal("Hata", "Oda şifresi yanlış!");
                 }
@@ -396,6 +520,7 @@
         }
 
         window.startTestMode = function() {
+            playSound('click');
             isTestMode = true;
             currentRoomId = 'test_mode';
             myColor = COLOR_PALETTE[0];
@@ -418,7 +543,7 @@
             };
 
             testGrid = {};
-            for(let i=0; i<256; i++) testGrid[i] = '#131c2e';
+            for(let i=0; i<256; i++) testGrid[i] = '#101726';
 
             document.getElementById('authView').classList.add('hidden');
             document.getElementById('gameView').classList.remove('hidden');
@@ -499,6 +624,7 @@
         }
 
         window.toggleReady = function() {
+            playSound('click');
             if (!isTestMode) {
                 performFirebaseReadyToggle();
                 return;
@@ -510,10 +636,14 @@
                 testPlayers['bot1'].ready = true;
                 testPlayers['bot2'].ready = true;
                 testPlayers['bot3'].ready = true;
+                testPlayers['bot4'].ready = true;
+                testPlayers['bot5'].ready = true;
             } else {
                 testPlayers['bot1'].ready = false;
                 testPlayers['bot2'].ready = false;
                 testPlayers['bot3'].ready = false;
+                testPlayers['bot4'].ready = false;
+                testPlayers['bot5'].ready = false;
             }
 
             const readyBtn = document.getElementById('readyBtn');
@@ -529,6 +659,7 @@
         }
 
         window.hostStartGame = function() {
+            playSound('click');
             if (isTestMode) {
                 if(testReadyTimer) clearInterval(testReadyTimer);
                 testReadyTimer = null;
@@ -561,7 +692,7 @@
 
             if (data.hostUid === currentUser.uid) {
                 const initialGrid = {};
-                for(let i=0; i<256; i++) initialGrid[i] = '#131c2e';
+                for(let i=0; i<256; i++) initialGrid[i] = '#101726';
                 const players = data.players || {};
                 Object.keys(players).forEach(uid => { players[uid].score = 0; });
 
@@ -582,7 +713,7 @@
                 testPlayers[id].score = 0;
                 testPlayers[id].ready = false;
             });
-            for(let i=0; i<256; i++) testGrid[i] = '#131c2e';
+            for(let i=0; i<256; i++) testGrid[i] = '#101726';
 
             testTimer = 60;
             hasPowerup = false;
@@ -602,13 +733,14 @@
                 if (testTimer <= 0) {
                     clearInterval(testInterval);
                     if(botInterval) clearInterval(botInterval);
+                    playSound('win');
                     openTestResultsModal();
                 }
             }, 1000);
 
             botInterval = setInterval(() => {
                 simulateSlidingBots();
-            }, 50);
+            }, 60);
 
             updateTestGridDisplay();
         }
@@ -623,7 +755,7 @@
             document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
 
             if (typeof confetti === 'function') {
-                confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
+                confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
             }
 
             sorted.slice(0, 3).forEach(([id, p], idx) => {
@@ -641,6 +773,14 @@
                 podium.appendChild(div);
             });
 
+            // Update user highscore if applicable
+            const myScore = testPlayers['user'].score;
+            if (myScore > highscore) {
+                highscore = myScore;
+                localStorage.setItem('boypix_highscore', highscore);
+                document.getElementById('displayHighscore').innerText = highscore;
+            }
+
             renderTestChecklist();
             document.getElementById('resultsModal').classList.remove('hidden');
         }
@@ -649,7 +789,7 @@
             ['bot1', 'bot2', 'bot3', 'bot4', 'bot5'].forEach(botKey => {
                 const b = botStates[botKey];
                 const dirs = [{dr: -1, dc: 0},{dr: 1, dc: 0},{dr: 0, dc: -1},{dr: 0, dc: 1}];
-                if (Math.random() < 0.25) b.dir = Math.floor(Math.random() * 4);
+                if (Math.random() < 0.22) b.dir = Math.floor(Math.random() * 4);
                 const d = dirs[b.dir];
                 b.r = Math.max(0, Math.min(15, b.r + d.dr));
                 b.c = Math.max(0, Math.min(15, b.c + d.dc));
@@ -669,14 +809,15 @@
 
         function triggerTestMeteor() {
             testMeteorActive = true;
+            playSound('meteor');
             const centerIdx = Math.floor(Math.random() * 200) + 28;
             const cells = document.getElementById('gridContainer').children;
             
             const centerRow = Math.floor(centerIdx / 16);
             const centerCol = centerIdx % 16;
             const affectedIndices = [];
-            for(let r = -3; r <= 3; r++) {
-                for(let c = -3; c <= 3; c++) {
+            for(let r = -2; r <= 2; r++) {
+                for(let c = -2; c <= 2; c++) {
                     const nr = centerRow + r;
                     const nc = centerCol + c;
                     if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) affectedIndices.push(nr * 16 + nc);
@@ -690,10 +831,10 @@
             setTimeout(() => {
                 affectedIndices.forEach(idx => {
                     if(idx >= 0 && idx < 256) {
-                        testGrid[idx] = '#131c2e';
+                        testGrid[idx] = '#101726';
                         if(cells[idx]) {
                             cells[idx].classList.remove('meteor-warning');
-                            cells[idx].style.backgroundColor = '#131c2e';
+                            cells[idx].style.backgroundColor = '#101726';
                         }
                     }
                 });
@@ -725,6 +866,7 @@
         }
 
         window.leaveRoom = async function() {
+            playSound('click');
             if (unsubscribeRoom) unsubscribeRoom();
             if(testInterval) clearInterval(testInterval);
             if(botInterval) clearInterval(botInterval);
@@ -785,8 +927,10 @@
         window.addEventListener('touchend', () => isMouseDown = false);
 
         async function paintCell(index) {
+            playSound('paint');
             if (isTestMode) {
                 if (index === testGiftCell) {
+                    playSound('powerup');
                     hasPowerup = true;
                     testGiftCell = null;
                     document.getElementById('powerupIndicator').classList.remove('hidden');
@@ -831,6 +975,7 @@
 
                 let indicesToPaint = [index];
                 if (data.giftCell === index) {
+                    playSound('powerup');
                     hasPowerup = true;
                     document.getElementById('powerupIndicator').classList.remove('hidden');
                     setTimeout(() => {
@@ -904,6 +1049,7 @@
                         updateDoc(roomRef, { status: 'ended' });
                     }
                 } else if (data.status === 'ended') {
+                    playSound('win');
                     openFirebaseResultsModal(sortedPlayers, players, data.hostUid);
                 }
             }, (error) => {
@@ -919,7 +1065,6 @@
             document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (" + data.name + ")";
             document.getElementById('lobbyModalSubheader').innerText = "Oyunu Kurucunun başlatmasını bekleyin ya da %50 çoğunluğu sağlayın!";
 
-            // Display Room info inside lobby
             document.getElementById('roomInfoName').innerText = "Oda: " + data.name;
             document.getElementById('roomInfoType').innerHTML = data.password ? '🔒 Şifreli Oda' : '🔓 Şifresiz Oda';
 
@@ -990,7 +1135,7 @@
             document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
 
             if (typeof confetti === 'function') {
-                confetti({ particleCount: 85, spread: 75, origin: { y: 0.6 } });
+                confetti({ particleCount: 95, spread: 85, origin: { y: 0.6 } });
             }
 
             sortedPlayers.slice(0, 3).forEach(([uid, p], idx) => {
@@ -1007,6 +1152,16 @@
                 `;
                 podium.appendChild(div);
             });
+
+            // Update user highscore if applicable
+            if (players[currentUser.uid]) {
+                const myScore = players[currentUser.uid].score || 0;
+                if (myScore > highscore) {
+                    highscore = myScore;
+                    localStorage.setItem('boypix_highscore', highscore);
+                    document.getElementById('displayHighscore').innerText = highscore;
+                }
+            }
 
             document.getElementById('resultsModal').classList.remove('hidden');
         }
