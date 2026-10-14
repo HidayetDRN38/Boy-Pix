@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boy-Pix - Renkli Piksel Kapışması</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0b0f19',
+                        cardbg: '#131c2e',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; touch-action: manipulation; }
+        .grid-cell { transition: background-color 0.1s ease; }
+        @keyframes pulse-meteor {
+            0% { transform: scale(1); opacity: 0.8; background-color: rgba(239, 68, 68, 0.4); }
+            50% { transform: scale(1.05); opacity: 1; background-color: rgba(239, 68, 68, 0.9); box-shadow: 0 0 25px rgba(239, 68, 68, 0.9); }
+            100% { transform: scale(1); opacity: 0.8; background-color: rgba(239, 68, 68, 0.4); }
+        }
+        .meteor-warning { animation: pulse-meteor 0.6s infinite; }
+        @keyframes pulse-gold {
+            0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 5px #facc15; }
+            50% { transform: scale(1.15); filter: brightness(1.5); box-shadow: 0 0 15px #facc15; }
+            100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 5px #facc15; }
+        }
+        .gold-capsule { animation: pulse-gold 0.8s infinite; background-color: #facc15 !important; border-radius: 50%; }
+    </style>
+</head>
+<body class="bg-darkbg text-slate-100 min-h-screen flex flex-col justify-between select-none overflow-x-hidden">
+
+    <div id="customModal" class="fixed inset-0 bg-black/80 z-[999] hidden flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-slate-700/80 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <h3 id="modalTitle" class="text-xl font-bold mb-2 text-indigo-400">Bildirim</h3>
+            <p id="modalMessage" class="text-slate-300 mb-6 text-sm">Mesaj içeriği buraya gelecek...</p>
+            <div id="modalButtons" class="flex justify-center gap-3">
+                <button id="modalCloseBtn" onclick="closeModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition shadow-lg shadow-indigo-600/30">Tamam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="authView" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">Boy-Pix</h1>
+                <p class="text-slate-400 text-xs mt-2">Renkleri konuştur, pikselleri fethet, kaosa ortak ol!</p>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 mb-6 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-slate-400 block">Oyuncu</span>
+                    <span id="displayNick" class="font-bold text-indigo-300 text-sm">Misafir</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400 block">En Yüksek Skor</span>
+                    <span id="displayHighscore" class="font-bold text-emerald-400 text-sm">0</span>
+                </div>
+                <button onclick="openNickModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition border border-slate-700">Değiştir</button>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="showCreateRoomModal()" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Oda Kur (Online)
+                </button>
+                <button onclick="showJoinRoomModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3.5 px-4 rounded-2xl transition border border-slate-700 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                    Odaya Katıl (Online)
+                </button>
+                <button onclick="startTestMode()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-pink-600/25 flex items-center justify-center gap-2">
+                    🚀 Botlarla Test Modu (Solo)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="nickModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-xs w-full shadow-2xl">
+            <h3 class="text-lg font-bold mb-3 text-indigo-400">Nickname Belirle</h3>
+            <input type="text" id="nickInput" maxlength="12" placeholder="Takma adın..." class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500">
+            <div class="flex gap-2">
+                <button onclick="saveNickname()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition">Kaydet</button>
+                <button onclick="closeNickModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="createRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 class="text-lg font-bold mb-3 text-indigo-400">Yeni Boy-Pix Odası Kur</h3>
+            <input type="text" id="createRoomName" maxlength="15" placeholder="Oda Adı (Örn: Piksel1)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-3 focus:outline-none focus:border-indigo-500">
+            <input type="password" id="createRoomPass" maxlength="10" placeholder="Oda Şifresi (İsteğe bağlı)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500">
+            <div class="flex gap-2">
+                <button onclick="createRoomSubmit()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition">Kur ve Lobiye Gir</button>
+                <button onclick="closeCreateRoomModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="joinRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 class="text-lg font-bold mb-3 text-indigo-400">Boy-Pix Odasına Katıl</h3>
+            <input type="text" id="joinRoomName" maxlength="15" placeholder="Oda Adı" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-3 focus:outline-none focus:border-indigo-500">
+            <input type="password" id="joinRoomPass" maxlength="10" placeholder="Oda Şifresi (Varsa)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2.5 text-slate-100 mb-4 focus:outline-none focus:border-indigo-500">
+            <div class="flex gap-2">
+                <button onclick="joinRoomSubmit()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-2xl transition">Bağlan</button>
+                <button onclick="closeJoinRoomModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl transition">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameView" class="hidden flex-1 flex flex-col p-2 sm:p-4 max-w-lg mx-auto w-full justify-center">
+        <div class="bg-cardbg border border-slate-800 rounded-2xl p-3 mb-2 flex items-center justify-between gap-2 shadow-xl">
+            <div class="flex items-center gap-2">
+                <button onclick="leaveRoom()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 transition">← Çık</button>
+                <div>
+                    <h2 id="activeRoomTitle" class="font-bold text-xs sm:text-sm text-indigo-300">Oda: -</h2>
+                    <span class="text-[10px] text-slate-400"><strong id="activeNick" class="text-slate-200"></strong></span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] text-slate-400">Renk:</span>
+                    <div id="myColorIndicator" class="w-4 h-4 rounded-full shadow-md border border-white/20"></div>
+                </div>
+                <div id="powerupIndicator" class="hidden text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-lg border border-pink-500/30 animate-pulse flex items-center gap-1">
+                    <!-- SVG Energy Capsule Icon -->
+                    <svg class="w-3 h-3 text-pink-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    3x3 Fırça!
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="text-center">
+                    <span class="text-[9px] text-slate-400 block">Süre</span>
+                    <span id="gameTimer" class="font-mono font-extrabold text-sm sm:text-base text-pink-400">60s</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-cardbg border border-slate-800 rounded-2xl p-3 flex items-center justify-center shadow-xl relative w-full">
+            <div id="gridContainer" class="grid grid-cols-16 gap-0.5 sm:gap-1 w-full max-w-[min(88vw,78vh,440px)] aspect-square bg-slate-900/90 p-2 rounded-xl border border-slate-800" style="grid-template-columns: repeat(16, minmax(0, 1fr));">
+                <!-- 256 cells -->
+            </div>
+        </div>
+    </div>
+
+    <div id="resultsModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-md w-full shadow-2xl text-center">
+            <h2 id="lobbyModalHeader" class="text-2xl font-extrabold text-indigo-400 mb-1">Oda Lobisi</h2>
+            <p id="lobbyModalSubheader" class="text-slate-400 text-xs mb-4">Hazır verin veya Kurucunun başlatmasını bekleyin:</p>
+            
+            <div id="podiumList" class="space-y-2.5 mb-4 hidden">
+                <!-- Top 3 podium rendered on round end -->
+            </div>
+
+            <div class="bg-slate-900/90 rounded-2xl p-4 mb-5 border border-slate-800 text-left">
+                <!-- Room info badge & checklist header -->
+                <div id="roomInfoContainer" class="mb-3 pb-2 border-b border-slate-800 flex items-center justify-between text-xs">
+                    <span id="roomInfoName" class="font-bold text-indigo-300">Oda: -</span>
+                    <span id="roomInfoType" class="bg-slate-800 px-2.5 py-1 rounded-lg text-slate-300 border border-slate-700">Şifresiz</span>
+                </div>
+                <div class="flex items-center justify-between mb-2 border-b border-slate-800 pb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Oyuncular (%<span id="readyPercentage">0</span> Hazır)</span>
+                    <span id="readyCountdown" class="font-mono font-bold text-xs text-pink-400">Bekleniyor...</span>
+                </div>
+                <div id="roomPlayerChecklist" class="space-y-2 max-h-36 overflow-y-auto pr-1">
+                    <!-- Dynamic Player Checklist -->
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <!-- Host-only force start button -->
+                <button id="hostStartBtn" onclick="hostStartGame()" class="hidden w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                    <span>👑 Oyunu Başlat (Kurucu)</span>
+                </button>
+
+                <!-- Regular ready toggle button -->
+                <button id="readyBtn" onclick="toggleReady()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
+                    <span>Hazırım!</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </button>
+
+                <button onclick="leaveRoom()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-2xl transition border border-slate-700 text-xs">
+                    Odadan Ayrıl
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUCoam6yB7ioljGHoBlIjcpvGathMBHXM",
+            authDomain: "boy-pix.firebaseapp.com",
+            projectId: "boy-pix",
+            storageBucket: "boy-pix.firebasestorage.app",
+            messagingSenderId: "736667212660",
+            appId: "1:736667212660:web:b61d0b6f070837707f6a21",
+            measurementId: "G-N6M3ZXHBP1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const COLOR_PALETTE = [
+            '#ef4444', // Red
+            '#3b82f6', // Blue
+            '#10b981', // Emerald
+            '#f59e0b', // Amber
+            '#ec4899', // Pink
+            '#8b5cf6'  // Purple
+        ];
+
+        let currentUser = null;
+        let currentRoomId = null;
+        let unsubscribeRoom = null;
+        let myColor = '#3b82f6';
+        let isMouseDown = false;
+        let isTestMode = false;
+
+        let testPlayers = {};
+        let testGrid = {};
+        let testTimer = 60;
+        let testInterval = null;
+        let botInterval = null;
+        let testGiftCell = null;
+        let testMeteorActive = false;
+        let hasPowerup = false;
+        let testReadyTimer = null;
+        let testReadySecondsLeft = 15;
+
+        let botStates = {
+            'bot1': { r: 2, c: 2, color: COLOR_PALETTE[1], nick: 'Bot_Ahmet', score: 0, ready: false, dir: 3 },
+            'bot2': { r: 13, c: 2, color: COLOR_PALETTE[2], nick: 'Bot_Zeynep', score: 0, ready: false, dir: 0 },
+            'bot3': { r: 2, c: 13, color: COLOR_PALETTE[3], nick: 'Bot_Can', score: 0, ready: false, dir: 1 },
+            'bot4': { r: 13, c: 13, color: COLOR_PALETTE[4], nick: 'Bot_Elif', score: 0, ready: false, dir: 2 },
+            'bot5': { r: 7, c: 7, color: COLOR_PALETTE[5], nick: 'Bot_Volkan', score: 0, ready: false, dir: 0 }
+        };
+
+        let nickname = localStorage.getItem('boypix_nick') || ('Sanatçı_' + Math.floor(Math.random() * 900 + 100));
+        let highscore = parseInt(localStorage.getItem('boypix_highscore') || '0');
+
+        document.getElementById('displayNick').innerText = nickname;
+        document.getElementById('displayHighscore').innerText = highscore;
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUser = auth.currentUser;
+            } catch (err) {
+                console.warn("Auth fallback active:", err);
+                currentUser = { uid: 'guest_' + Math.random().toString(36).substring(2, 9) };
+            }
+        }
+        initAuth();
+
+        window.showModal = function(title, msg) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = msg;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+        window.closeModal = function() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        window.openNickModal = function() {
+            document.getElementById('nickInput').value = nickname;
+            document.getElementById('nickModal').classList.remove('hidden');
+        }
+        window.closeNickModal = function() {
+            document.getElementById('nickModal').classList.add('hidden');
+        }
+        window.saveNickname = function() {
+            const val = document.getElementById('nickInput').value.trim();
+            if (!val) return showModal("Hata", "Nickname boş olamaz.");
+            nickname = val;
+            localStorage.setItem('boypix_nick', nickname);
+            document.getElementById('displayNick').innerText = nickname;
+            closeNickModal();
+        }
+
+        window.showCreateRoomModal = function() { document.getElementById('createRoomModal').classList.remove('hidden'); }
+        window.closeCreateRoomModal = function() { document.getElementById('createRoomModal').classList.add('hidden'); }
+        window.showJoinRoomModal = function() { document.getElementById('joinRoomModal').classList.remove('hidden'); }
+        window.closeJoinRoomModal = function() { document.getElementById('joinRoomModal').classList.add('hidden'); }
+
+        window.createRoomSubmit = async function() {
+            if (!currentUser) return showModal("Bekleyin", "Bağlantı kuruluyor...");
+            const roomName = document.getElementById('createRoomName').value.trim();
+            const roomPass = document.getElementById('createRoomPass').value.trim(); // Optional password
+            if (!roomName) return showModal("Eksik Bilgi", "Oda adı girilmelidir.");
+
+            try {
+                const roomRef = doc(db, 'boypix_rooms', roomName);
+                const snap = await getDoc(roomRef);
+                if (snap.exists()) return showModal("Hata", "Bu oda adı zaten kullanımda.");
+
+                myColor = COLOR_PALETTE[0];
+                const initialGrid = {};
+                for(let i=0; i<256; i++) initialGrid[i] = '#131c2e';
+
+                const roomData = {
+                    name: roomName,
+                    password: roomPass || '', // If empty, room is unencrypted/public
+                    status: 'lobby',
+                    endTime: null, 
+                    readyStartTime: null,
+                    hostUid: currentUser.uid,
+                    grid: initialGrid,
+                    players: {
+                        [currentUser.uid]: { nick: nickname, color: myColor, score: 0, ready: false }
+                    },
+                    colorIndexCounter: 1,
+                    giftCell: null,
+                    meteorActive: false
+                };
+
+                await setDoc(roomRef, roomData);
+                currentRoomId = roomName;
+                isTestMode = false;
+                closeCreateRoomModal();
+                enterGameRoom(roomName);
+            } catch (err) {
+                console.error("Create room error:", err);
+                showModal("Bağlantı Hatası", "Oda oluşturulamadı.");
+            }
+        }
+
+        window.joinRoomSubmit = async function() {
+            if (!currentUser) return showModal("Bekleyin", "Bağlantı kuruluyor...");
+            const roomName = document.getElementById('joinRoomName').value.trim();
+            const roomPass = document.getElementById('joinRoomPass').value.trim();
+            if (!roomName) return showModal("Eksik Bilgi", "Oda adı girilmelidir.");
+
+            try {
+                const roomRef = doc(db, 'boypix_rooms', roomName);
+                const snap = await getDoc(roomRef);
+                if (!snap.exists()) return showModal("Bulunamadı", "Böyle bir Boy-Pix odası bulunamadı.");
+
+                const data = snap.data();
+                // Check password if room has one set
+                if (data.password && data.password !== roomPass) {
+                    return showModal("Hata", "Oda şifresi yanlış!");
+                }
+
+                const players = data.players || {};
+                if (Object.keys(players).length >= 6 && !players[currentUser.uid]) {
+                    return showModal("Oda Dolu", "Bu oda maksimum 6 kişilik kapasiteye ulaştı.");
+                }
+
+                const colorIdx = (data.colorIndexCounter || 0) % COLOR_PALETTE.length;
+                myColor = COLOR_PALETTE[colorIdx];
+
+                players[currentUser.uid] = {
+                    nick: nickname,
+                    color: myColor,
+                    score: players[currentUser.uid] ? players[currentUser.uid].score : 0,
+                    ready: false
+                };
+
+                await updateDoc(roomRef, {
+                    players: players,
+                    colorIndexCounter: (data.colorIndexCounter || 0) + 1
+                });
+
+                currentRoomId = roomName;
+                isTestMode = false;
+                closeJoinRoomModal();
+                enterGameRoom(roomName);
+            } catch (err) {
+                console.error("Join room error:", err);
+                showModal("Bağlantı Hatası", "Odaya katılamadı.");
+            }
+        }
+
+        window.startTestMode = function() {
+            isTestMode = true;
+            currentRoomId = 'test_mode';
+            myColor = COLOR_PALETTE[0];
+            hasPowerup = false;
+            document.getElementById('powerupIndicator').classList.add('hidden');
+
+            botStates['bot1'] = { r: 2, c: 2, color: COLOR_PALETTE[1], nick: 'Bot_Ahmet', score: 0, ready: false, dir: 3 };
+            botStates['bot2'] = { r: 13, c: 2, color: COLOR_PALETTE[2], nick: 'Bot_Zeynep', score: 0, ready: false, dir: 0 };
+            botStates['bot3'] = { r: 2, c: 13, color: COLOR_PALETTE[3], nick: 'Bot_Can', score: 0, ready: false, dir: 1 };
+            botStates['bot4'] = { r: 13, c: 13, color: COLOR_PALETTE[4], nick: 'Bot_Elif', score: 0, ready: false, dir: 2 };
+            botStates['bot5'] = { r: 7, c: 7, color: COLOR_PALETTE[5], nick: 'Bot_Volkan', score: 0, ready: false, dir: 0 };
+
+            testPlayers = {
+                'user': { nick: nickname, color: myColor, score: 0, ready: false },
+                'bot1': { nick: 'Bot_Ahmet', color: COLOR_PALETTE[1], score: 0, ready: false },
+                'bot2': { nick: 'Bot_Zeynep', color: COLOR_PALETTE[2], score: 0, ready: false },
+                'bot3': { nick: 'Bot_Can', color: COLOR_PALETTE[3], score: 0, ready: false },
+                'bot4': { nick: 'Bot_Elif', color: COLOR_PALETTE[4], score: 0, ready: false },
+                'bot5': { nick: 'Bot_Volkan', color: COLOR_PALETTE[5], score: 0, ready: false }
+            };
+
+            testGrid = {};
+            for(let i=0; i<256; i++) testGrid[i] = '#131c2e';
+
+            document.getElementById('authView').classList.add('hidden');
+            document.getElementById('gameView').classList.remove('hidden');
+            document.getElementById('activeRoomTitle').innerText = 'Oda: Test_Modu';
+            document.getElementById('activeNick').innerText = nickname;
+            document.getElementById('myColorIndicator').style.backgroundColor = myColor;
+
+            buildGridDom();
+            openTestLobbyModal();
+        }
+
+        function openTestLobbyModal() {
+            document.getElementById('podiumList').classList.add('hidden');
+            document.getElementById('hostStartBtn').classList.remove('hidden');
+            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (Test)";
+            document.getElementById('lobbyModalSubheader').innerText = "Oyunu istediğin an başlat veya %50 hazır oranını bekle!";
+
+            document.getElementById('roomInfoName').innerText = "Oda: Test_Modu";
+            document.getElementById('roomInfoType').innerHTML = '🔓 Şifresiz (Solo)';
+
+            renderTestChecklist();
+            
+            const readyBtn = document.getElementById('readyBtn');
+            readyBtn.innerHTML = '<span>Hazırım!</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            readyBtn.className = 'w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2';
+
+            document.getElementById('resultsModal').classList.remove('hidden');
+        }
+
+        function renderTestChecklist() {
+            const checklist = document.getElementById('roomPlayerChecklist');
+            checklist.innerHTML = '';
+            
+            const playerArray = Object.entries(testPlayers);
+            const total = playerArray.length;
+            const readyCount = playerArray.filter(([_, p]) => p.ready).length;
+            const pct = Math.round((readyCount / total) * 100);
+
+            document.getElementById('readyPercentage').innerText = pct;
+
+            playerArray.forEach(([id, p]) => {
+                const isHost = (id === 'user');
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-slate-950/60 px-3 py-2 rounded-xl border border-slate-800/80 text-xs';
+                row.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${p.color}"></div>
+                        <span class="font-semibold text-slate-200">${p.nick} ${isHost ? '👑' : ''}</span>
+                    </div>
+                    <div>
+                        ${p.ready ? '<span class="text-emerald-400 font-bold flex items-center gap-1">✓ Hazır</span>' : '<span class="text-slate-500">Bekliyor...</span>'}
+                    </div>
+                `;
+                checklist.appendChild(row);
+            });
+
+            if (pct > 50) {
+                if (!testReadyTimer) {
+                    testReadySecondsLeft = 15;
+                    document.getElementById('readyCountdown').innerText = testReadySecondsLeft + 's (Başlıyor)';
+                    testReadyTimer = setInterval(() => {
+                        testReadySecondsLeft--;
+                        document.getElementById('readyCountdown').innerText = testReadySecondsLeft + 's (Başlıyor)';
+                        if (testReadySecondsLeft <= 0) {
+                            clearInterval(testReadyTimer);
+                            testReadyTimer = null;
+                            startTestGamePlay();
+                        }
+                    }, 1000);
+                }
+            } else {
+                if (testReadyTimer) {
+                    clearInterval(testReadyTimer);
+                    testReadyTimer = null;
+                }
+                document.getElementById('readyCountdown').innerText = '%50+ Hazır Bekleniyor...';
+            }
+        }
+
+        window.toggleReady = function() {
+            if (!isTestMode) {
+                performFirebaseReadyToggle();
+                return;
+            }
+
+            testPlayers['user'].ready = !testPlayers['user'].ready;
+            
+            if(testPlayers['user'].ready) {
+                testPlayers['bot1'].ready = true;
+                testPlayers['bot2'].ready = true;
+                testPlayers['bot3'].ready = true;
+            } else {
+                testPlayers['bot1'].ready = false;
+                testPlayers['bot2'].ready = false;
+                testPlayers['bot3'].ready = false;
+            }
+
+            const readyBtn = document.getElementById('readyBtn');
+            if(testPlayers['user'].ready) {
+                readyBtn.innerHTML = '<span class="text-emerald-300">✓ Hazırsın (İptal Et)</span>';
+                readyBtn.className = 'w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 rounded-2xl transition border border-emerald-500/40 flex items-center justify-center gap-2';
+            } else {
+                readyBtn.innerHTML = '<span>Hazırım!</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                readyBtn.className = 'w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2';
+            }
+
+            renderTestChecklist();
+        }
+
+        window.hostStartGame = function() {
+            if (isTestMode) {
+                if(testReadyTimer) clearInterval(testReadyTimer);
+                testReadyTimer = null;
+                startTestGamePlay();
+            } else {
+                performFirebaseHostStart();
+            }
+        }
+
+        async function performFirebaseReadyToggle() {
+            if (!currentRoomId || !currentUser) return;
+            const roomRef = doc(db, 'boypix_rooms', currentRoomId);
+            const snap = await getDoc(roomRef);
+            if (!snap.exists()) return;
+            const data = snap.data();
+            const players = data.players || {};
+            
+            if (players[currentUser.uid]) {
+                players[currentUser.uid].ready = !players[currentUser.uid].ready;
+                await updateDoc(roomRef, { players });
+            }
+        }
+
+        async function performFirebaseHostStart() {
+            if (!currentRoomId || !currentUser) return;
+            const roomRef = doc(db, 'boypix_rooms', currentRoomId);
+            const snap = await getDoc(roomRef);
+            if (!snap.exists()) return;
+            const data = snap.data();
+
+            if (data.hostUid === currentUser.uid) {
+                const initialGrid = {};
+                for(let i=0; i<256; i++) initialGrid[i] = '#131c2e';
+                const players = data.players || {};
+                Object.keys(players).forEach(uid => { players[uid].score = 0; });
+
+                await updateDoc(roomRef, {
+                    status: 'playing',
+                    endTime: Date.now() + 60000,
+                    readyStartTime: null,
+                    grid: initialGrid,
+                    players: players,
+                    giftCell: Math.floor(Math.random() * 256)
+                });
+            }
+        }
+
+        function startTestGamePlay() {
+            document.getElementById('resultsModal').classList.add('hidden');
+            Object.keys(testPlayers).forEach(id => {
+                testPlayers[id].score = 0;
+                testPlayers[id].ready = false;
+            });
+            for(let i=0; i<256; i++) testGrid[i] = '#131c2e';
+
+            testTimer = 60;
+            hasPowerup = false;
+            testGiftCell = null;
+            document.getElementById('powerupIndicator').classList.add('hidden');
+
+            if(testInterval) clearInterval(testInterval);
+            if(botInterval) clearInterval(botInterval);
+
+            testInterval = setInterval(() => {
+                testTimer--;
+                document.getElementById('gameTimer').innerText = testTimer + 's';
+
+                if(testTimer === 45 || testTimer === 25 || testTimer === 10) triggerTestMeteor();
+                if(testTimer === 52 || testTimer === 32 || testTimer === 18) spawnTestGift();
+
+                if (testTimer <= 0) {
+                    clearInterval(testInterval);
+                    if(botInterval) clearInterval(botInterval);
+                    openTestResultsModal();
+                }
+            }, 1000);
+
+            botInterval = setInterval(() => {
+                simulateSlidingBots();
+            }, 50);
+
+            updateTestGridDisplay();
+        }
+
+        function openTestResultsModal() {
+            const sorted = Object.entries(testPlayers).sort((a,b) => b[1].score - a[1].score);
+            const podium = document.getElementById('podiumList');
+            podium.innerHTML = '';
+            podium.classList.remove('hidden');
+
+            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı!";
+            document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
+            }
+
+            sorted.slice(0, 3).forEach(([id, p], idx) => {
+                const medals = ['🥇', '🥈', '🥉'];
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-slate-900 p-3 rounded-2xl border border-slate-800';
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 font-bold text-sm">
+                        <span>${medals[idx]}</span>
+                        <div class="w-3.5 h-3.5 rounded-full" style="background-color: ${p.color}"></div>
+                        <span class="text-slate-100">${p.nick}</span>
+                    </div>
+                    <span class="font-mono text-emerald-400 font-bold">${p.score} Puan</span>
+                `;
+                podium.appendChild(div);
+            });
+
+            renderTestChecklist();
+            document.getElementById('resultsModal').classList.remove('hidden');
+        }
+
+        function simulateSlidingBots() {
+            ['bot1', 'bot2', 'bot3', 'bot4', 'bot5'].forEach(botKey => {
+                const b = botStates[botKey];
+                const dirs = [{dr: -1, dc: 0},{dr: 1, dc: 0},{dr: 0, dc: -1},{dr: 0, dc: 1}];
+                if (Math.random() < 0.25) b.dir = Math.floor(Math.random() * 4);
+                const d = dirs[b.dir];
+                b.r = Math.max(0, Math.min(15, b.r + d.dr));
+                b.c = Math.max(0, Math.min(15, b.c + d.dc));
+                const idx = b.r * 16 + b.c;
+
+                testGrid[idx] = b.color;
+                testPlayers[botKey].score += 1;
+            });
+            updateTestGridDisplay();
+        }
+
+        function spawnTestGift() {
+            if (testGiftCell !== null) return;
+            testGiftCell = Math.floor(Math.random() * 256);
+            updateTestGridDisplay();
+        }
+
+        function triggerTestMeteor() {
+            testMeteorActive = true;
+            const centerIdx = Math.floor(Math.random() * 200) + 28;
+            const cells = document.getElementById('gridContainer').children;
+            
+            const centerRow = Math.floor(centerIdx / 16);
+            const centerCol = centerIdx % 16;
+            const affectedIndices = [];
+            for(let r = -3; r <= 3; r++) {
+                for(let c = -3; c <= 3; c++) {
+                    const nr = centerRow + r;
+                    const nc = centerCol + c;
+                    if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) affectedIndices.push(nr * 16 + nc);
+                }
+            }
+
+            affectedIndices.forEach(idx => {
+                if(idx >= 0 && idx < 256 && cells[idx]) cells[idx].classList.add('meteor-warning');
+            });
+
+            setTimeout(() => {
+                affectedIndices.forEach(idx => {
+                    if(idx >= 0 && idx < 256) {
+                        testGrid[idx] = '#131c2e';
+                        if(cells[idx]) {
+                            cells[idx].classList.remove('meteor-warning');
+                            cells[idx].style.backgroundColor = '#131c2e';
+                        }
+                    }
+                });
+                testMeteorActive = false;
+            }, 1800);
+        }
+
+        function updateTestGridDisplay() {
+            const cells = document.getElementById('gridContainer').children;
+            for (let i = 0; i < cells.length; i++) {
+                if (testGrid[i]) cells[i].style.backgroundColor = testGrid[i];
+                if (i === testGiftCell) {
+                    cells[i].className = 'grid-cell w-full aspect-square rounded-sm gold-capsule cursor-pointer flex items-center justify-center';
+                } else if (cells[i].classList.contains('gold-capsule')) {
+                    cells[i].classList.remove('gold-capsule');
+                }
+            }
+        }
+
+        function enterGameRoom(roomName) {
+            document.getElementById('authView').classList.add('hidden');
+            document.getElementById('gameView').classList.remove('hidden');
+            document.getElementById('activeRoomTitle').innerText = 'Oda: ' + roomName;
+            document.getElementById('activeNick').innerText = nickname;
+            document.getElementById('myColorIndicator').style.backgroundColor = myColor;
+
+            buildGridDom();
+            listenRoom();
+        }
+
+        window.leaveRoom = async function() {
+            if (unsubscribeRoom) unsubscribeRoom();
+            if(testInterval) clearInterval(testInterval);
+            if(botInterval) clearInterval(botInterval);
+            if(testReadyTimer) clearInterval(testReadyTimer);
+
+            if (!isTestMode && currentRoomId && currentUser) {
+                try {
+                    const roomRef = doc(db, 'boypix_rooms', currentRoomId);
+                    const snap = await getDoc(roomRef);
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.players && data.players[currentUser.uid]) {
+                            delete data.players[currentUser.uid];
+                            await updateDoc(roomRef, { players: data.players });
+                        }
+                    }
+                } catch(e) { console.error(e); }
+            }
+            currentRoomId = null;
+            isTestMode = false;
+            document.getElementById('gameView').classList.add('hidden');
+            document.getElementById('resultsModal').classList.add('hidden');
+            document.getElementById('authView').classList.remove('hidden');
+        }
+
+        function buildGridDom() {
+            const container = document.getElementById('gridContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 256; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell w-full aspect-square rounded-sm bg-slate-800 cursor-pointer flex items-center justify-center';
+                cell.dataset.index = i;
+                
+                cell.addEventListener('mousedown', (e) => { e.preventDefault(); paintCell(i); });
+                cell.addEventListener('mouseenter', () => { if (isMouseDown) paintCell(i); });
+                
+                cell.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    isMouseDown = true;
+                    paintCell(i);
+                }, {passive: false});
+
+                cell.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (target && target.dataset && target.dataset.index !== undefined) {
+                        paintCell(parseInt(target.dataset.index));
+                    }
+                }, {passive: false});
+
+                container.appendChild(cell);
+            }
+        }
+
+        window.addEventListener('mousedown', () => isMouseDown = true);
+        window.addEventListener('mouseup', () => isMouseDown = false);
+        window.addEventListener('touchend', () => isMouseDown = false);
+
+        async function paintCell(index) {
+            if (isTestMode) {
+                if (index === testGiftCell) {
+                    hasPowerup = true;
+                    testGiftCell = null;
+                    document.getElementById('powerupIndicator').classList.remove('hidden');
+                    setTimeout(() => {
+                        hasPowerup = false;
+                        document.getElementById('powerupIndicator').classList.add('hidden');
+                    }, 10000);
+                }
+
+                const indicesToPaint = [index];
+                if (hasPowerup) {
+                    const row = Math.floor(index / 16);
+                    const col = index % 16;
+                    for(let r = -1; r <= 1; r++) {
+                        for(let c = -1; c <= 1; c++) {
+                            const nr = row + r;
+                            const nc = col + c;
+                            if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) indicesToPaint.push(nr * 16 + nc);
+                        }
+                    }
+                }
+
+                indicesToPaint.forEach(idx => {
+                    testGrid[idx] = myColor;
+                    testPlayers['user'].score += 1;
+                });
+
+                updateTestGridDisplay();
+                return;
+            }
+
+            if (!currentRoomId || !currentUser) return;
+            try {
+                const roomRef = doc(db, 'boypix_rooms', currentRoomId);
+                const snap = await getDoc(roomRef);
+                if (!snap.exists()) return;
+                const data = snap.data();
+                if (data.status !== 'playing') return;
+
+                const grid = data.grid || {};
+                const players = data.players || {};
+
+                let indicesToPaint = [index];
+                if (data.giftCell === index) {
+                    hasPowerup = true;
+                    document.getElementById('powerupIndicator').classList.remove('hidden');
+                    setTimeout(() => {
+                        hasPowerup = false;
+                        document.getElementById('powerupIndicator').classList.add('hidden');
+                    }, 10000);
+                }
+
+                if (hasPowerup) {
+                    const row = Math.floor(index / 16);
+                    const col = index % 16;
+                    for(let r = -1; r <= 1; r++) {
+                        for(let c = -1; c <= 1; c++) {
+                            const nr = row + r;
+                            const nc = col + c;
+                            if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) indicesToPaint.push(nr * 16 + nc);
+                        }
+                    }
+                }
+
+                indicesToPaint.forEach(idx => { grid[idx] = myColor; });
+
+                if (players[currentUser.uid]) {
+                    players[currentUser.uid].score = (players[currentUser.uid].score || 0) + indicesToPaint.length;
+                }
+
+                const updatePayload = { grid, players };
+                if (data.giftCell === index) updatePayload.giftCell = null;
+                await updateDoc(roomRef, updatePayload);
+            } catch(e) {
+                console.error("Paint error:", e);
+            }
+        }
+
+        function listenRoom() {
+            if (!currentRoomId || isTestMode) return;
+            const roomRef = doc(db, 'boypix_rooms', currentRoomId);
+            
+            unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
+                if (!docSnap.exists()) return;
+                const data = docSnap.data();
+
+                const grid = data.grid || {};
+                const cells = document.getElementById('gridContainer').children;
+                for (let i = 0; i < cells.length; i++) {
+                    if (grid[i]) cells[i].style.backgroundColor = grid[i];
+                    if (i === data.giftCell) {
+                        cells[i].className = 'grid-cell w-full aspect-square rounded-sm gold-capsule cursor-pointer flex items-center justify-center';
+                    } else if (cells[i].classList.contains('gold-capsule')) {
+                        cells[i].classList.remove('gold-capsule');
+                    }
+                }
+
+                const players = data.players || {};
+                const sortedPlayers = Object.entries(players).sort((a,b) => b[1].score - a[1].score);
+
+                const now = Date.now();
+                
+                const hostBtn = document.getElementById('hostStartBtn');
+                if (data.hostUid === currentUser.uid) hostBtn.classList.remove('hidden');
+                else hostBtn.classList.add('hidden');
+
+                if (data.status === 'lobby') {
+                    renderFirebaseLobby(data, roomRef, sortedPlayers);
+                } else if (data.status === 'playing') {
+                    document.getElementById('resultsModal').classList.add('hidden');
+                    const timeLeft = Math.max(0, Math.floor((data.endTime - now) / 1000));
+                    document.getElementById('gameTimer').innerText = timeLeft + 's';
+
+                    if (timeLeft <= 0 && currentUser.uid === data.hostUid) {
+                        updateDoc(roomRef, { status: 'ended' });
+                    }
+                } else if (data.status === 'ended') {
+                    openFirebaseResultsModal(sortedPlayers, players, data.hostUid);
+                }
+            }, (error) => {
+                console.error("Firestore error:", error);
+            });
+        }
+
+        function renderFirebaseLobby(data, roomRef, sortedPlayers) {
+            const resultsModal = document.getElementById('resultsModal');
+            resultsModal.classList.remove('hidden');
+            document.getElementById('podiumList').classList.add('hidden');
+
+            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (" + data.name + ")";
+            document.getElementById('lobbyModalSubheader').innerText = "Oyunu Kurucunun başlatmasını bekleyin ya da %50 çoğunluğu sağlayın!";
+
+            // Display Room info inside lobby
+            document.getElementById('roomInfoName').innerText = "Oda: " + data.name;
+            document.getElementById('roomInfoType').innerHTML = data.password ? '🔒 Şifreli Oda' : '🔓 Şifresiz Oda';
+
+            const players = data.players || {};
+            const playerArray = Object.entries(players);
+            const total = playerArray.length;
+            const readyCount = playerArray.filter(([_, p]) => p.ready).length;
+            const pct = total > 0 ? Math.round((readyCount / total) * 100) : 0;
+
+            document.getElementById('readyPercentage').innerText = pct;
+
+            const checklist = document.getElementById('roomPlayerChecklist');
+            checklist.innerHTML = '';
+            playerArray.forEach(([uid, p]) => {
+                const isHost = (uid === data.hostUid);
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-slate-950/60 px-3 py-2 rounded-xl border border-slate-800/80 text-xs';
+                row.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${p.color}"></div>
+                        <span class="font-semibold text-slate-200">${p.nick} ${isHost ? '👑' : ''}</span>
+                    </div>
+                    <div>
+                        ${p.ready ? '<span class="text-emerald-400 font-bold flex items-center gap-1">✓ Hazır</span>' : '<span class="text-slate-500">Bekliyor...</span>'}
+                    </div>
+                `;
+                checklist.appendChild(row);
+            });
+
+            if (pct > 50) {
+                if (!data.readyStartTime) {
+                    if (currentUser.uid === data.hostUid) {
+                        updateDoc(roomRef, { readyStartTime: Date.now() });
+                    }
+                } else {
+                    const elapsed = Math.floor((Date.now() - data.readyStartTime) / 1000);
+                    const remaining = Math.max(0, 15 - elapsed);
+                    document.getElementById('readyCountdown').innerText = remaining + 's (Çoğunluk Hazır)';
+
+                    if (remaining <= 0 && currentUser.uid === data.hostUid) {
+                        performFirebaseHostStart();
+                    }
+                }
+            } else {
+                if (data.readyStartTime && currentUser.uid === data.hostUid) {
+                    updateDoc(roomRef, { readyStartTime: null });
+                }
+                document.getElementById('readyCountdown').innerText = '%50+ Hazır Bekleniyor...';
+            }
+
+            const me = players[currentUser.uid];
+            const readyBtn = document.getElementById('readyBtn');
+            if (me && me.ready) {
+                readyBtn.innerHTML = '<span class="text-emerald-300">✓ Hazırsın (İptal Et)</span>';
+                readyBtn.className = 'w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 rounded-2xl transition border border-emerald-500/40 flex items-center justify-center gap-2';
+            } else {
+                readyBtn.innerHTML = '<span>Hazırım!</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                readyBtn.className = 'w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2';
+            }
+        }
+
+        function openFirebaseResultsModal(sortedPlayers, players, hostUid) {
+            const podium = document.getElementById('podiumList');
+            podium.innerHTML = '';
+            podium.classList.remove('hidden');
+
+            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı!";
+            document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 85, spread: 75, origin: { y: 0.6 } });
+            }
+
+            sortedPlayers.slice(0, 3).forEach(([uid, p], idx) => {
+                const medals = ['🥇', '🥈', '🥉'];
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-slate-900 p-3 rounded-2xl border border-slate-800';
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 font-bold text-sm">
+                        <span>${medals[idx]}</span>
+                        <div class="w-3.5 h-3.5 rounded-full" style="background-color: ${p.color}"></div>
+                        <span class="text-slate-100">${p.nick}</span>
+                    </div>
+                    <span class="font-mono text-emerald-400 font-bold">${p.score} Puan</span>
+                `;
+                podium.appendChild(div);
+            });
+
+            document.getElementById('resultsModal').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
