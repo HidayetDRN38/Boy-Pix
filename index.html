@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boy-Pix - Renkli Piksel Kapışması v1.5.0</title>
+    <title>Boy-Pix - Renkli Piksel Kapışması v1.6.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
@@ -22,20 +22,20 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body { font-family: 'Inter', sans-serif; touch-action: manipulation; }
-        .grid-cell { transition: background-color 0.06s ease, transform 0.08s ease; }
+        .grid-cell { transition: background-color 0.04s ease, transform 0.06s ease; }
         .grid-cell:active { transform: scale(0.90); }
         @keyframes pulse-meteor {
             0% { transform: scale(1); opacity: 0.8; background-color: rgba(239, 68, 68, 0.4); }
             50% { transform: scale(1.06); opacity: 1; background-color: rgba(239, 68, 68, 0.95); box-shadow: 0 0 30px rgba(239, 68, 68, 0.95); }
             100% { transform: scale(1); opacity: 0.8; background-color: rgba(239, 68, 68, 0.4); }
         }
-        .meteor-warning { animation: pulse-meteor 0.45s infinite; }
+        .meteor-warning { animation: pulse-meteor 0.4s infinite; }
         @keyframes pulse-gold {
             0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 10px #facc15; }
             50% { transform: scale(1.2); filter: brightness(1.7); box-shadow: 0 0 25px #facc15; }
             100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 10px #facc15; }
         }
-        .gold-capsule { animation: pulse-gold 0.65s infinite; background-color: #facc15 !important; border-radius: 50%; }
+        .gold-capsule { animation: pulse-gold 0.6s infinite; background-color: #facc15 !important; border-radius: 50%; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); border-radius: 8px; }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 8px; }
@@ -66,10 +66,10 @@
             
             <div class="text-center mb-6 relative z-10">
                 <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">Boy-Pix</h1>
-                <p class="text-slate-400 text-xs mt-2 font-medium">Renkleri konuştur, pikselleri fethet, kaosa ortak ol!</p>
-                <div class="mt-3 inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-mono px-3.5 py-1 rounded-full shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>Sürüm v1.5.0 (Stabil Bulut Build)</span>
+                <p class="text-slate-400 text-xs mt-2 font-medium">Anlık Senkronize Renk Kapışması</p>
+                <div class="mt-3 inline-flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-mono px-3.5 py-1 rounded-full shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+                    <span>Sürüm v1.6.1 (11x11 Meteor Impact Build)</span>
                 </div>
             </div>
 
@@ -88,11 +88,11 @@
             <div class="space-y-3 relative z-10">
                 <button onclick="showCreateRoomModal()" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Oda Kur (Online)
+                    Oda Kur (Online RTDB)
                 </button>
                 <button onclick="showJoinRoomModal()" class="w-full bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-bold py-3.5 px-4 rounded-2xl transition border border-slate-700 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                    Odaya Katıl (Online)
+                    Odaya Katıl (Online RTDB)
                 </button>
                 <button onclick="startTestMode()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3.5 px-4 rounded-2xl transition shadow-lg shadow-pink-600/25 flex items-center justify-center gap-2">
                     🚀 Botlarla Test Modu (Solo)
@@ -174,8 +174,8 @@
 
     <div id="resultsModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-md w-full shadow-2xl text-center">
-            <h2 id="lobbyModalHeader" class="text-2xl font-extrabold text-indigo-400 mb-1">Oda Lobisi v1.5.0</h2>
-            <p id="lobbyModalSubheader" class="text-slate-400 text-xs mb-4">Hazır verin veya Kurucunun başlatmasını bekleyin:</p>
+            <h2 id="lobbyModalHeader" class="text-2xl font-extrabold text-indigo-400 mb-1">Oda Lobisi v1.6.0</h2>
+            <p id="lobbyModalSubheader" class="text-slate-400 text-xs mb-4">Hazır verin veya Kurucunun başlatmasını bekleyin (%50 hazır kuralı aktif):</p>
             
             <div id="podiumList" class="space-y-2.5 mb-4 hidden">
                 <!-- Top 3 podium rendered on round end -->
@@ -347,6 +347,7 @@
         let myColor = '#3b82f6';
         let isMouseDown = false;
         let isTestMode = false;
+        let hasPowerup = false;
 
         let testPlayers = {};
         let testGrid = {};
@@ -354,17 +355,15 @@
         let testInterval = null;
         let botInterval = null;
         let testGiftCell = null;
-        let testMeteorActive = false;
-        let hasPowerup = false;
         let testReadyTimer = null;
         let testReadySecondsLeft = 15;
 
         let botStates = {
-            'bot1': { r: 2, c: 2, color: COLOR_PALETTE[1], nick: 'Bot_Ahmet', score: 0, ready: false, dir: 3 },
-            'bot2': { r: 13, c: 2, color: COLOR_PALETTE[2], nick: 'Bot_Zeynep', score: 0, ready: false, dir: 0 },
-            'bot3': { r: 2, c: 13, color: COLOR_PALETTE[3], nick: 'Bot_Can', score: 0, ready: false, dir: 1 },
-            'bot4': { r: 13, c: 13, color: COLOR_PALETTE[4], nick: 'Bot_Elif', score: 0, ready: false, dir: 2 },
-            'bot5': { r: 7, c: 7, color: COLOR_PALETTE[5], nick: 'Bot_Volkan', score: 0, ready: false, dir: 0 }
+            'bot1': { r: 2, c: 2, color: COLOR_PALETTE[1], nick: 'Bot_Ahmet' },
+            'bot2': { r: 13, c: 2, color: COLOR_PALETTE[2], nick: 'Bot_Zeynep' },
+            'bot3': { r: 2, c: 13, color: COLOR_PALETTE[3], nick: 'Bot_Can' },
+            'bot4': { r: 13, c: 13, color: COLOR_PALETTE[4], nick: 'Bot_Elif' },
+            'bot5': { r: 7, c: 7, color: COLOR_PALETTE[5], nick: 'Bot_Volkan' }
         };
 
         let nickname = localStorage.getItem('boypix_nick') || ('Sanatçı_' + Math.floor(Math.random() * 900 + 100));
@@ -453,7 +452,7 @@
                     colorIndexCounter: 1,
                     giftCell: null,
                     meteorActive: false,
-                    version: '1.5.0'
+                    version: '1.6.0'
                 };
 
                 await set(roomRef, roomData);
@@ -522,12 +521,6 @@
             hasPowerup = false;
             document.getElementById('powerupIndicator').classList.add('hidden');
 
-            botStates['bot1'] = { r: 2, c: 2, color: COLOR_PALETTE[1], nick: 'Bot_Ahmet', score: 0, ready: false, dir: 3 };
-            botStates['bot2'] = { r: 13, c: 2, color: COLOR_PALETTE[2], nick: 'Bot_Zeynep', score: 0, ready: false, dir: 0 };
-            botStates['bot3'] = { r: 2, c: 13, color: COLOR_PALETTE[3], nick: 'Bot_Can', score: 0, ready: false, dir: 1 };
-            botStates['bot4'] = { r: 13, c: 13, color: COLOR_PALETTE[4], nick: 'Bot_Elif', score: 0, ready: false, dir: 2 };
-            botStates['bot5'] = { r: 7, c: 7, color: COLOR_PALETTE[5], nick: 'Bot_Volkan', score: 0, ready: false, dir: 0 };
-
             testPlayers = {
                 'user': { nick: nickname, color: myColor, score: 0, ready: false },
                 'bot1': { nick: 'Bot_Ahmet', color: COLOR_PALETTE[1], score: 0, ready: false },
@@ -542,7 +535,7 @@
 
             document.getElementById('authView').classList.add('hidden');
             document.getElementById('gameView').classList.remove('hidden');
-            document.getElementById('activeRoomTitle').innerText = 'Oda: Test_Modu (v1.5.0)';
+            document.getElementById('activeRoomTitle').innerText = 'Oda: Test_Modu (v1.6.0)';
             document.getElementById('activeNick').innerText = nickname;
             document.getElementById('myColorIndicator').style.backgroundColor = myColor;
 
@@ -553,11 +546,11 @@
         function openTestLobbyModal() {
             document.getElementById('podiumList').classList.add('hidden');
             document.getElementById('hostStartBtn').classList.remove('hidden');
-            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (Test v1.5.0)";
-            document.getElementById('lobbyModalSubheader').innerText = "Oyunu istediğin an başlat veya %50 hazır oranını bekle!";
+            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (Test v1.6.0)";
+            document.getElementById('lobbyModalSubheader').innerText = "2+ oyuncuda %50 hazır kuralı aktif!";
 
             document.getElementById('roomInfoName').innerText = "Oda: Test_Modu";
-            document.getElementById('roomInfoType').innerHTML = '🔓 Şifresiz (Solo v1.5.0)';
+            document.getElementById('roomInfoType').innerHTML = '🔓 Şifresiz (Solo v1.6.0)';
 
             renderTestChecklist();
             
@@ -575,7 +568,7 @@
             const playerArray = Object.entries(testPlayers);
             const total = playerArray.length;
             const readyCount = playerArray.filter(([_, p]) => p.ready).length;
-            const pct = Math.round((readyCount / total) * 100);
+            const pct = total > 0 ? Math.round((readyCount / total) * 100) : 0;
 
             document.getElementById('readyPercentage').innerText = pct;
 
@@ -628,17 +621,9 @@
             testPlayers['user'].ready = !testPlayers['user'].ready;
             
             if(testPlayers['user'].ready) {
-                testPlayers['bot1'].ready = true;
-                testPlayers['bot2'].ready = true;
-                testPlayers['bot3'].ready = true;
-                testPlayers['bot4'].ready = true;
-                testPlayers['bot5'].ready = true;
+                Object.keys(testPlayers).forEach(k => testPlayers[k].ready = true);
             } else {
-                testPlayers['bot1'].ready = false;
-                testPlayers['bot2'].ready = false;
-                testPlayers['bot3'].ready = false;
-                testPlayers['bot4'].ready = false;
-                testPlayers['bot5'].ready = false;
+                Object.keys(testPlayers).forEach(k => testPlayers[k].ready = false);
             }
 
             const readyBtn = document.getElementById('readyBtn');
@@ -697,7 +682,9 @@
                     readyStartTime: null,
                     grid: initialGrid,
                     players: players,
-                    giftCell: Math.floor(Math.random() * 256)
+                    giftCell: Math.floor(Math.random() * 256),
+                    meteorActive: false,
+                    meteorCenter: null
                 });
             }
         }
@@ -746,7 +733,7 @@
             podium.innerHTML = '';
             podium.classList.remove('hidden');
 
-            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.5.0)";
+            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.6.0)";
             document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
 
             if (typeof confetti === 'function') {
@@ -783,8 +770,7 @@
             ['bot1', 'bot2', 'bot3', 'bot4', 'bot5'].forEach(botKey => {
                 const b = botStates[botKey];
                 const dirs = [{dr: -1, dc: 0},{dr: 1, dc: 0},{dr: 0, dc: -1},{dr: 0, dc: 1}];
-                if (Math.random() < 0.22) b.dir = Math.floor(Math.random() * 4);
-                const d = dirs[b.dir];
+                const d = dirs[Math.floor(Math.random() * 4)];
                 b.r = Math.max(0, Math.min(15, b.r + d.dr));
                 b.c = Math.max(0, Math.min(15, b.c + d.dc));
                 const idx = b.r * 16 + b.c;
@@ -802,7 +788,6 @@
         }
 
         function triggerTestMeteor() {
-            testMeteorActive = true;
             playSound('meteor');
             const centerIdx = Math.floor(Math.random() * 200) + 28;
             const cells = document.getElementById('gridContainer').children;
@@ -810,8 +795,8 @@
             const centerRow = Math.floor(centerIdx / 16);
             const centerCol = centerIdx % 16;
             const affectedIndices = [];
-            for(let r = -2; r <= 2; r++) {
-                for(let c = -2; c <= 2; c++) {
+            for(let r = -5; r <= 5; r++) {
+                for(let c = -5; c <= 5; c++) {
                     const nr = centerRow + r;
                     const nc = centerCol + c;
                     if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) affectedIndices.push(nr * 16 + nc);
@@ -832,7 +817,6 @@
                         }
                     }
                 });
-                testMeteorActive = false;
             }, 1800);
         }
 
@@ -893,6 +877,7 @@
         window.addEventListener('mouseup', () => isMouseDown = false);
         window.addEventListener('touchend', () => isMouseDown = false);
 
+        // OPTIMISTIC UI: Instant local feedback + background sync
         async function paintCell(index) {
             playSound('paint');
             if (isTestMode) {
@@ -923,13 +908,34 @@
                 indicesToPaint.forEach(idx => {
                     testGrid[idx] = myColor;
                     testPlayers['user'].score += 1;
+                    const cells = document.getElementById('gridContainer').children;
+                    if(cells[idx]) cells[idx].style.backgroundColor = myColor;
                 });
-
-                updateTestGridDisplay();
                 return;
             }
 
             if (!currentRoomId || !currentUser) return;
+            
+            // Local Optimistic DOM update (0ms latency feedback)
+            const cells = document.getElementById('gridContainer').children;
+            let indicesToPaint = [index];
+            
+            if (hasPowerup) {
+                const row = Math.floor(index / 16);
+                const col = index % 16;
+                for(let r = -1; r <= 1; r++) {
+                    for(let c = -1; c <= 1; c++) {
+                        const nr = row + r;
+                        const nc = col + c;
+                        if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) indicesToPaint.push(nr * 16 + nc);
+                    }
+                }
+            }
+
+            indicesToPaint.forEach(idx => {
+                if(cells[idx]) cells[idx].style.backgroundColor = myColor;
+            });
+
             try {
                 const roomRef = ref(db, 'boypix_rooms/' + currentRoomId);
                 const snap = await get(roomRef);
@@ -940,7 +946,6 @@
                 const grid = data.grid || {};
                 const players = data.players || {};
 
-                let indicesToPaint = [index];
                 if (data.giftCell === index) {
                     playSound('powerup');
                     hasPowerup = true;
@@ -949,18 +954,6 @@
                         hasPowerup = false;
                         document.getElementById('powerupIndicator').classList.add('hidden');
                     }, 10000);
-                }
-
-                if (hasPowerup) {
-                    const row = Math.floor(index / 16);
-                    const col = index % 16;
-                    for(let r = -1; r <= 1; r++) {
-                        for(let c = -1; c <= 1; c++) {
-                            const nr = row + r;
-                            const nc = col + c;
-                            if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) indicesToPaint.push(nr * 16 + nc);
-                        }
-                    }
                 }
 
                 indicesToPaint.forEach(idx => { grid[idx] = myColor; });
@@ -976,6 +969,9 @@
                 console.error("Paint error:", e);
             }
         }
+
+        let lastMeteorTimeTriggered = 0;
+        let lastGiftTimeTriggered = 0;
 
         function listenRoom() {
             if (!currentRoomId || isTestMode) return;
@@ -998,7 +994,6 @@
 
                 const players = data.players || {};
                 const sortedPlayers = Object.entries(players).sort((a,b) => b[1].score - a[1].score);
-
                 const now = Date.now();
                 
                 const hostBtn = document.getElementById('hostStartBtn');
@@ -1012,9 +1007,32 @@
                     const timeLeft = Math.max(0, Math.floor((data.endTime - now) / 1000));
                     document.getElementById('gameTimer').innerText = timeLeft + 's';
 
-                    if (timeLeft <= 0 && currentUser.uid === data.hostUid) {
-                        update(roomRef, { status: 'ended' });
+                    // HOST-CENTRIC AUTHORITY: Host manages meteor and gift generation for online room
+                    if (currentUser.uid === data.hostUid) {
+                        const elapsedSeconds = 60 - timeLeft;
+                        
+                        // Spawn gift box every ~15 seconds if none exists
+                        if ((elapsedSeconds === 10 || elapsedSeconds === 25 || elapsedSeconds === 40) && data.giftCell === null && lastGiftTimeTriggered !== elapsedSeconds) {
+                            lastGiftTimeTriggered = elapsedSeconds;
+                            const randomCell = Math.floor(Math.random() * 256);
+                            update(roomRef, { giftCell: randomCell });
+                        }
+
+                        // Trigger meteor at 45s, 25s, 10s remaining
+                        if ((timeLeft === 45 || timeLeft === 25 || timeLeft === 10) && lastMeteorTimeTriggered !== timeLeft) {
+                            lastMeteorTimeTriggered = timeLeft;
+                            triggerOnlineMeteor(roomRef, data);
+                        }
+
+                        if (timeLeft <= 0) {
+                            update(roomRef, { status: 'ended' });
+                        }
                     }
+
+                    if (data.meteorActive && data.meteorCenter !== undefined) {
+                        applyVisualMeteor(data.meteorCenter);
+                    }
+
                 } else if (data.status === 'ended') {
                     playSound('win');
                     openFirebaseResultsModal(sortedPlayers, players, data.hostUid);
@@ -1024,13 +1042,57 @@
             });
         }
 
+        async function triggerOnlineMeteor(roomRef, data) {
+            const centerIdx = Math.floor(Math.random() * 200) + 28;
+            await update(roomRef, { meteorActive: true, meteorCenter: centerIdx });
+            
+            setTimeout(async () => {
+                const grid = data.grid || {};
+                const centerRow = Math.floor(centerIdx / 16);
+                const centerCol = centerIdx % 16;
+                for(let r = -5; r <= 5; r++) {
+                    for(let c = -5; c <= 5; c++) {
+                        const nr = centerRow + r;
+                        const nc = centerCol + c;
+                        if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) {
+                            grid[nr * 16 + nc] = '#0e1525';
+                        }
+                    }
+                }
+                await update(roomRef, { grid: grid, meteorActive: false, meteorCenter: null });
+            }, 1800);
+        }
+
+        function applyVisualMeteor(centerIdx) {
+            playSound('meteor');
+            const cells = document.getElementById('gridContainer').children;
+            const centerRow = Math.floor(centerIdx / 16);
+            const centerCol = centerIdx % 16;
+            const affectedIndices = [];
+            for(let r = -5; r <= 5; r++) {
+                for(let c = -5; c <= 5; c++) {
+                    const nr = centerRow + r;
+                    const nc = centerCol + c;
+                    if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) affectedIndices.push(nr * 16 + nc);
+                }
+            }
+            affectedIndices.forEach(idx => {
+                if(cells[idx]) cells[idx].classList.add('meteor-warning');
+            });
+            setTimeout(() => {
+                affectedIndices.forEach(idx => {
+                    if(cells[idx]) cells[idx].classList.remove('meteor-warning');
+                });
+            }, 1800);
+        }
+
         function renderFirebaseLobby(data, roomRef, sortedPlayers) {
             const resultsModal = document.getElementById('resultsModal');
             resultsModal.classList.remove('hidden');
             document.getElementById('podiumList').classList.add('hidden');
 
-            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (" + data.name + " v1.5.0)";
-            document.getElementById('lobbyModalSubheader').innerText = "Oyunu Kurucunun başlatmasını bekleyin ya da %50 çoğunluğu sağlayın!";
+            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (" + data.name + " v1.6.0)";
+            document.getElementById('lobbyModalSubheader').innerText = "2+ oyuncuda %50 hazır kuralı aktif!";
 
             document.getElementById('roomInfoName').innerText = "Oda: " + data.name;
             document.getElementById('roomInfoType').innerHTML = data.password ? '🔒 Şifreli Oda' : '🔓 Şifresiz Oda';
@@ -1061,7 +1123,8 @@
                 checklist.appendChild(row);
             });
 
-            if (pct >= 50) {
+            // 50% READY RULE (Special exception: 2 players -> 1 ready is enough)
+            if (pct >= 50 && total >= 1) {
                 if (!data.readyStartTime) {
                     if (currentUser.uid === data.hostUid) {
                         update(roomRef, { readyStartTime: Date.now() });
@@ -1098,7 +1161,7 @@
             podium.innerHTML = '';
             podium.classList.remove('hidden');
 
-            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.5.0)";
+            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.6.0)";
             document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
 
             if (typeof confetti === 'function') {
