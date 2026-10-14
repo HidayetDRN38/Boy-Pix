@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boy-Pix - Renkli Piksel Kapışması v1.6.0</title>
+    <title>Boy-Pix - Renkli Piksel Kapışması v1.6.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
@@ -31,11 +31,11 @@
         }
         .meteor-warning { animation: pulse-meteor 0.4s infinite; }
         @keyframes pulse-gold {
-            0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 10px #facc15; }
-            50% { transform: scale(1.2); filter: brightness(1.7); box-shadow: 0 0 25px #facc15; }
-            100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 10px #facc15; }
+            0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 12px #facc15; }
+            50% { transform: scale(1.25); filter: brightness(1.8); box-shadow: 0 0 30px #facc15; }
+            100% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 12px #facc15; }
         }
-        .gold-capsule { animation: pulse-gold 0.6s infinite; background-color: #facc15 !important; border-radius: 50%; }
+        .gold-capsule { animation: pulse-gold 0.5s infinite; background-color: #facc15 !important; border-radius: 50% !important; border: 2px solid #ffffff; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); border-radius: 8px; }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 8px; }
@@ -69,7 +69,7 @@
                 <p class="text-slate-400 text-xs mt-2 font-medium">Anlık Senkronize Renk Kapışması</p>
                 <div class="mt-3 inline-flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-[11px] font-mono px-3.5 py-1 rounded-full shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
-                    <span>Sürüm v1.6.1 (11x11 Meteor Impact Build)</span>
+                    <span>Sürüm v1.6.2 (11x11 Meteor & Powerup Fix)</span>
                 </div>
             </div>
 
@@ -174,7 +174,7 @@
 
     <div id="resultsModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-cardbg border border-slate-700 rounded-3xl p-6 max-w-md w-full shadow-2xl text-center">
-            <h2 id="lobbyModalHeader" class="text-2xl font-extrabold text-indigo-400 mb-1">Oda Lobisi v1.6.0</h2>
+            <h2 id="lobbyModalHeader" class="text-2xl font-extrabold text-indigo-400 mb-1">Oda Lobisi v1.6.2</h2>
             <p id="lobbyModalSubheader" class="text-slate-400 text-xs mb-4">Hazır verin veya Kurucunun başlatmasını bekleyin (%50 hazır kuralı aktif):</p>
             
             <div id="podiumList" class="space-y-2.5 mb-4 hidden">
@@ -311,10 +311,10 @@
                     osc.frequency.setValueAtTime(320, now);
                     osc.frequency.setValueAtTime(520, now + 0.08);
                     osc.frequency.setValueAtTime(820, now + 0.16);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
                     osc.start(now);
-                    osc.stop(now + 0.3);
+                    osc.stop(now + 0.35);
                 } else if (type === 'meteor') {
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(160, now);
@@ -452,7 +452,7 @@
                     colorIndexCounter: 1,
                     giftCell: null,
                     meteorActive: false,
-                    version: '1.6.0'
+                    version: '1.6.2'
                 };
 
                 await set(roomRef, roomData);
@@ -535,7 +535,7 @@
 
             document.getElementById('authView').classList.add('hidden');
             document.getElementById('gameView').classList.remove('hidden');
-            document.getElementById('activeRoomTitle').innerText = 'Oda: Test_Modu (v1.6.0)';
+            document.getElementById('activeRoomTitle').innerText = 'Oda: Test_Modu (v1.6.2)';
             document.getElementById('activeNick').innerText = nickname;
             document.getElementById('myColorIndicator').style.backgroundColor = myColor;
 
@@ -546,11 +546,11 @@
         function openTestLobbyModal() {
             document.getElementById('podiumList').classList.add('hidden');
             document.getElementById('hostStartBtn').classList.remove('hidden');
-            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (Test v1.6.0)";
+            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (Test v1.6.2)";
             document.getElementById('lobbyModalSubheader').innerText = "2+ oyuncuda %50 hazır kuralı aktif!";
 
             document.getElementById('roomInfoName').innerText = "Oda: Test_Modu";
-            document.getElementById('roomInfoType').innerHTML = '🔓 Şifresiz (Solo v1.6.0)';
+            document.getElementById('roomInfoType').innerHTML = '🔓 Şifresiz (Solo v1.6.2)';
 
             renderTestChecklist();
             
@@ -710,7 +710,7 @@
                 document.getElementById('gameTimer').innerText = testTimer + 's';
 
                 if(testTimer === 45 || testTimer === 25 || testTimer === 10) triggerTestMeteor();
-                if(testTimer === 52 || testTimer === 32 || testTimer === 18) spawnTestGift();
+                if(testTimer === 52 || testTimer === 35 || testTimer === 18) spawnTestGift();
 
                 if (testTimer <= 0) {
                     clearInterval(testInterval);
@@ -733,7 +733,7 @@
             podium.innerHTML = '';
             podium.classList.remove('hidden');
 
-            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.6.0)";
+            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.6.2)";
             document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
 
             if (typeof confetti === 'function') {
@@ -783,23 +783,29 @@
 
         function spawnTestGift() {
             if (testGiftCell !== null) return;
+            // Pick a random index that is not near the edges so 3x3 capsule is fully visible & accessible
             testGiftCell = Math.floor(Math.random() * 256);
             updateTestGridDisplay();
         }
 
         function triggerTestMeteor() {
             playSound('meteor');
-            const centerIdx = Math.floor(Math.random() * 200) + 28;
+            // Ensure 11x11 meteor impact center is safely within bounds (rows/cols 5 to 10)
+            const centerRow = Math.floor(Math.random() * 6) + 5;
+            const centerCol = Math.floor(Math.random() * 6) + 5;
+            const centerIdx = centerRow * 16 + centerCol;
+
             const cells = document.getElementById('gridContainer').children;
-            
-            const centerRow = Math.floor(centerIdx / 16);
-            const centerCol = centerIdx % 16;
             const affectedIndices = [];
+
+            // True 11x11 box: offset -5 to +5 in both rows and columns
             for(let r = -5; r <= 5; r++) {
                 for(let c = -5; c <= 5; c++) {
                     const nr = centerRow + r;
                     const nc = centerCol + c;
-                    if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) affectedIndices.push(nr * 16 + nc);
+                    if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) {
+                        affectedIndices.push(nr * 16 + nc);
+                    }
                 }
             }
 
@@ -811,6 +817,7 @@
                 affectedIndices.forEach(idx => {
                     if(idx >= 0 && idx < 256) {
                         testGrid[idx] = '#0e1525';
+                        if(idx === testGiftCell) testGiftCell = null; // Meteor clears gift if present
                         if(cells[idx]) {
                             cells[idx].classList.remove('meteor-warning');
                             cells[idx].style.backgroundColor = '#0e1525';
@@ -825,9 +832,9 @@
             for (let i = 0; i < cells.length; i++) {
                 if (testGrid[i]) cells[i].style.backgroundColor = testGrid[i];
                 if (i === testGiftCell) {
-                    cells[i].className = 'grid-cell w-full aspect-square rounded-sm gold-capsule cursor-pointer flex items-center justify-center';
+                    cells[i].className = 'grid-cell w-full aspect-square gold-capsule cursor-pointer flex items-center justify-center';
                 } else if (cells[i].classList.contains('gold-capsule')) {
-                    cells[i].classList.remove('gold-capsule');
+                    cells[i].className = 'grid-cell w-full aspect-square rounded-sm bg-slate-800 cursor-pointer flex items-center justify-center';
                 }
             }
         }
@@ -881,7 +888,9 @@
         async function paintCell(index) {
             playSound('paint');
             if (isTestMode) {
+                let collectedGift = false;
                 if (index === testGiftCell) {
+                    collectedGift = true;
                     playSound('powerup');
                     hasPowerup = true;
                     testGiftCell = null;
@@ -893,14 +902,16 @@
                 }
 
                 const indicesToPaint = [index];
-                if (hasPowerup) {
+                if (hasPowerup && !collectedGift) {
                     const row = Math.floor(index / 16);
                     const col = index % 16;
                     for(let r = -1; r <= 1; r++) {
                         for(let c = -1; c <= 1; c++) {
                             const nr = row + r;
                             const nc = col + c;
-                            if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) indicesToPaint.push(nr * 16 + nc);
+                            if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) {
+                                indicesToPaint.push(nr * 16 + nc);
+                            }
                         }
                     }
                 }
@@ -911,31 +922,12 @@
                     const cells = document.getElementById('gridContainer').children;
                     if(cells[idx]) cells[idx].style.backgroundColor = myColor;
                 });
+                updateTestGridDisplay();
                 return;
             }
 
             if (!currentRoomId || !currentUser) return;
             
-            // Local Optimistic DOM update (0ms latency feedback)
-            const cells = document.getElementById('gridContainer').children;
-            let indicesToPaint = [index];
-            
-            if (hasPowerup) {
-                const row = Math.floor(index / 16);
-                const col = index % 16;
-                for(let r = -1; r <= 1; r++) {
-                    for(let c = -1; c <= 1; c++) {
-                        const nr = row + r;
-                        const nc = col + c;
-                        if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) indicesToPaint.push(nr * 16 + nc);
-                    }
-                }
-            }
-
-            indicesToPaint.forEach(idx => {
-                if(cells[idx]) cells[idx].style.backgroundColor = myColor;
-            });
-
             try {
                 const roomRef = ref(db, 'boypix_rooms/' + currentRoomId);
                 const snap = await get(roomRef);
@@ -946,7 +938,9 @@
                 const grid = data.grid || {};
                 const players = data.players || {};
 
+                let collectedGift = false;
                 if (data.giftCell === index) {
+                    collectedGift = true;
                     playSound('powerup');
                     hasPowerup = true;
                     document.getElementById('powerupIndicator').classList.remove('hidden');
@@ -956,14 +950,33 @@
                     }, 10000);
                 }
 
-                indicesToPaint.forEach(idx => { grid[idx] = myColor; });
+                const indicesToPaint = [index];
+                if (hasPowerup && !collectedGift) {
+                    const row = Math.floor(index / 16);
+                    const col = index % 16;
+                    for(let r = -1; r <= 1; r++) {
+                        for(let c = -1; c <= 1; c++) {
+                            const nr = row + r;
+                            const nc = col + c;
+                            if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) {
+                                indicesToPaint.push(nr * 16 + nc);
+                            }
+                        }
+                    }
+                }
+
+                const cells = document.getElementById('gridContainer').children;
+                indicesToPaint.forEach(idx => {
+                    grid[idx] = myColor;
+                    if(cells[idx]) cells[idx].style.backgroundColor = myColor;
+                });
 
                 if (players[currentUser.uid]) {
                     players[currentUser.uid].score = (players[currentUser.uid].score || 0) + indicesToPaint.length;
                 }
 
                 const updatePayload = { grid, players };
-                if (data.giftCell === index) updatePayload.giftCell = null;
+                if (collectedGift) updatePayload.giftCell = null;
                 await update(roomRef, updatePayload);
             } catch(e) {
                 console.error("Paint error:", e);
@@ -986,9 +999,9 @@
                 for (let i = 0; i < cells.length; i++) {
                     if (grid[i]) cells[i].style.backgroundColor = grid[i];
                     if (i === data.giftCell) {
-                        cells[i].className = 'grid-cell w-full aspect-square rounded-sm gold-capsule cursor-pointer flex items-center justify-center';
+                        cells[i].className = 'grid-cell w-full aspect-square gold-capsule cursor-pointer flex items-center justify-center';
                     } else if (cells[i].classList.contains('gold-capsule')) {
-                        cells[i].classList.remove('gold-capsule');
+                        cells[i].className = 'grid-cell w-full aspect-square rounded-sm bg-slate-800 cursor-pointer flex items-center justify-center';
                     }
                 }
 
@@ -1012,7 +1025,7 @@
                         const elapsedSeconds = 60 - timeLeft;
                         
                         // Spawn gift box every ~15 seconds if none exists
-                        if ((elapsedSeconds === 10 || elapsedSeconds === 25 || elapsedSeconds === 40) && data.giftCell === null && lastGiftTimeTriggered !== elapsedSeconds) {
+                        if ((elapsedSeconds === 10 || elapsedSeconds === 28 || elapsedSeconds === 45) && data.giftCell === null && lastGiftTimeTriggered !== elapsedSeconds) {
                             lastGiftTimeTriggered = elapsedSeconds;
                             const randomCell = Math.floor(Math.random() * 256);
                             update(roomRef, { giftCell: randomCell });
@@ -1043,13 +1056,14 @@
         }
 
         async function triggerOnlineMeteor(roomRef, data) {
-            const centerIdx = Math.floor(Math.random() * 200) + 28;
+            const centerRow = Math.floor(Math.random() * 6) + 5;
+            const centerCol = Math.floor(Math.random() * 6) + 5;
+            const centerIdx = centerRow * 16 + centerCol;
+
             await update(roomRef, { meteorActive: true, meteorCenter: centerIdx });
             
             setTimeout(async () => {
                 const grid = data.grid || {};
-                const centerRow = Math.floor(centerIdx / 16);
-                const centerCol = centerIdx % 16;
                 for(let r = -5; r <= 5; r++) {
                     for(let c = -5; c <= 5; c++) {
                         const nr = centerRow + r;
@@ -1059,7 +1073,15 @@
                         }
                     }
                 }
-                await update(roomRef, { grid: grid, meteorActive: false, meteorCenter: null });
+                const updatePayload = { grid: grid, meteorActive: false, meteorCenter: null };
+                if (data.giftCell !== null) {
+                    const gRow = Math.floor(data.giftCell / 16);
+                    const gCol = data.giftCell % 16;
+                    if (Math.abs(gRow - centerRow) <= 5 && Math.abs(gCol - centerCol) <= 5) {
+                        updatePayload.giftCell = null;
+                    }
+                }
+                await update(roomRef, updatePayload);
             }, 1800);
         }
 
@@ -1073,7 +1095,9 @@
                 for(let c = -5; c <= 5; c++) {
                     const nr = centerRow + r;
                     const nc = centerCol + c;
-                    if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) affectedIndices.push(nr * 16 + nc);
+                    if(nr >= 0 && nr < 16 && nc >= 0 && nc < 16) {
+                        affectedIndices.push(nr * 16 + nc);
+                    }
                 }
             }
             affectedIndices.forEach(idx => {
@@ -1091,7 +1115,7 @@
             resultsModal.classList.remove('hidden');
             document.getElementById('podiumList').classList.add('hidden');
 
-            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (" + data.name + " v1.6.0)";
+            document.getElementById('lobbyModalHeader').innerText = "Oda Lobisi (" + data.name + " v1.6.2)";
             document.getElementById('lobbyModalSubheader').innerText = "2+ oyuncuda %50 hazır kuralı aktif!";
 
             document.getElementById('roomInfoName').innerText = "Oda: " + data.name;
@@ -1123,7 +1147,7 @@
                 checklist.appendChild(row);
             });
 
-            // 50% READY RULE (Special exception: 2 players -> 1 ready is enough)
+            // 50% READY RULE
             if (pct >= 50 && total >= 1) {
                 if (!data.readyStartTime) {
                     if (currentUser.uid === data.hostUid) {
@@ -1161,7 +1185,7 @@
             podium.innerHTML = '';
             podium.classList.remove('hidden');
 
-            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.6.0)";
+            document.getElementById('lobbyModalHeader').innerText = "Tur Tamamlandı! (v1.6.2)";
             document.getElementById('lobbyModalSubheader').innerText = "Bu turun en iyi Boy-Pix sanatçıları:";
 
             if (typeof confetti === 'function') {
